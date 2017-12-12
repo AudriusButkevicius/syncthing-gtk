@@ -27,7 +27,6 @@ from syncthing_gtk.timermanager import TimerManager
 from syncthing_gtk.uibuilder import UIBuilder
 from syncthing_gtk.identicon import IdentIcon
 from syncthing_gtk.infobox import InfoBox
-from syncthing_gtk.watcher import Watcher
 from syncthing_gtk.ribar import RIBar
 
 from datetime import datetime
@@ -111,7 +110,6 @@ class App(Gtk.Application, TimerManager):
 			not IS_UNITY and (not self.config["use_old_header"] or IS_GNOME)
 			and (Gtk.get_major_version(), Gtk.get_minor_version()) >= (3, 10) )
 		
-		self.watcher = None
 		self.daemon = None	# Created by setup_connection method
 		# If enabled (by -o argument), daemon output is captured and printed
 		# to stdout
@@ -374,10 +372,7 @@ class App(Gtk.Application, TimerManager):
 			# This is pretty-much fatal. Display error message and bail out.
 			self.cb_syncthing_con_error(self.daemon, Daemon.UNKNOWN, str(e), e)
 			return False
-		# Enable filesystem watching and desktop notifications,
-		# if desired and possible
-		if not Watcher is None:
-			self.watcher = Watcher(self, self.daemon)
+		# Enable desktop notifications if desired and possible
 		if HAS_DESKTOP_NOTIFY:
 			if self.config["notification_for_update"] or self.config["notification_for_error"]:
 				self.notifications = Notifications(self, self.daemon)
@@ -800,9 +795,6 @@ class App(Gtk.Application, TimerManager):
 		if config["options"]["urAccepted"] == 0:
 			# User did not responded to usage reporting yet. Ask
 			self.ask_for_ur()
-		
-		if not self.watcher is None:
-			self.watcher.start()
 	
 	def cb_syncthing_error(self, daemon, message):
 		""" Handles errors reported by syncthing daemon """
@@ -1034,11 +1026,6 @@ class App(Gtk.Application, TimerManager):
 				key=lambda x : x.get_title().lower()
 				)
 			)
-		if not self.watcher is None:
-			if rid in self.config["use_inotify"]:
-				self.watcher.watch(box["id"], box["norm_path"])
-				if IS_WINDOWS:
-					self.lookup_action('inotify_output').set_enabled(True)
 	
 	def cb_syncthing_folder_data_changed(self, daemon, rid, data):
 		if rid in self.folders:	# Should be always
@@ -1496,8 +1483,6 @@ class App(Gtk.Application, TimerManager):
 		self.error_boxes = []
 		self.error_messages = set([])
 		self.cancel_all() # timers
-		if not self.watcher is None:
-			self.watcher.kill()
 		self.daemon.reconnect()
 	
 	def refresh(self):
@@ -1508,13 +1493,7 @@ class App(Gtk.Application, TimerManager):
 		Looks cleaner & prevents UI from blinking.
 		"""
 		log.debug("Reloading config...")
-		if not self.watcher is None:
-			self.watcher.kill()
-			self.lookup_action('inotify_output').set_enabled(False)
-		def callback(*a):
-			if not self.watcher is None:
-				GLib.timeout_add_seconds(1, self.watcher.start)
-		self.daemon.reload_config(callback)
+		self.daemon.reload_config()
 	
 	def change_setting_async(self, setting_name, value, retry_on_error=False, restart=True):
 		"""
@@ -1598,8 +1577,6 @@ class App(Gtk.Application, TimerManager):
 				# Always kill subprocess on windows
 				self.process.kill()
 				self.process = None
-				if not self.watcher is None:
-					self.watcher.kill()
 			elif self.config["autokill_daemon"] == 2:	# Ask
 				d = Gtk.MessageDialog(
 					self["window"],
@@ -1949,22 +1926,6 @@ class App(Gtk.Application, TimerManager):
 		if self.process != None:
 			d = DaemonOutputDialog(self, self.process)
 			d.show(None)
-	
-	def cb_menu_inotify_output(self, *a):
-		# Available & called only on Windows
-		if hasattr(self.watcher, "proc") and not self.watcher.proc is None:
-			d = DaemonOutputDialog(self, self.watcher.proc)
-			d.show(None, _("Syncthing-Inotify Output"))
-		else:
-			d = Gtk.MessageDialog(
-					self["window"],
-					Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-					Gtk.MessageType.ERROR, Gtk.ButtonsType.CLOSE,
-					_("Syncthing-Inotify is unavailable or failed to start")
-				)
-			d.run()
-			d.hide()
-			d.destroy()
 	
 	def cb_statusicon_click(self, *a):
 		""" Called when user clicks on status icon """

@@ -30,7 +30,6 @@ if HAS_DESKTOP_NOTIFY:
 	log = logging.getLogger("Notifications")
 	
 	class NotificationsCls(TimerManager):
-		""" Watches for filesystem changes and reports them to daemon """
 		def __init__(self, app, daemon):
 			TimerManager.__init__(self)
 			Notify.init("Syncthing GTK")

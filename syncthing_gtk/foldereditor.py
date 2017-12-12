@@ -10,7 +10,6 @@ from gi.repository import Gtk
 from syncthing_gtk.tools import _ # gettext function
 from syncthing_gtk.tools import generate_folder_id
 from syncthing_gtk.editordialog import EditorDialog, strip_v
-from syncthing_gtk.watcher import Watcher
 import os, re, logging
 log = logging.getLogger("FolderEditor")
 
@@ -168,11 +167,6 @@ class FolderEditorDialog(EditorDialog):
 			log.exception(e)
 			self.close()
 			return False
-		if Watcher is None:
-			self["vinotify"].set_sensitive(False)
-			self["lblinotify"].set_sensitive(False)
-			self["vinotify"].set_tooltip_text(_("Please, install pyinotify package to use this feature"))
-			self["lblinotify"].set_tooltip_text(_("Please, install pyinotify package to use this feature"))
 		return self.display_values(VALUES)
 	
 	#@Overrides
