@@ -11,7 +11,6 @@ from win32verstamp import stamp
 from tempfile import mkdtemp
 from subprocess import Popen, PIPE
 from setup import get_version as _get_version, find_mos
-from syncthing_gtk.windows import ST_INOTIFY_EXE
 
 gnome_dll_path = "/Python27/Lib/site-packages/gnome"
 build_dir = "./build/exe.win32-2.7/"
@@ -64,7 +63,7 @@ wrong_sized_dll = [	'libcairo-gobject-2.dll',
 # List of languages that are copied from GTK and included in installation
 enabled_gtk_locales = [ "sk", "cs", "pl", "de", "fr", "vi", "ru", "zh_CN", "lt", "es", "hu" ]
 
-include_files = [ ST_INOTIFY_EXE ]
+include_files = [ ]
 
 # Stuff required by GTK
 gtk_dirs = ('etc', 'lib')
@@ -86,9 +85,6 @@ import pprint
 pprint.pprint(include_files)
 # sys.exit(0)
 
-
-# syncthing-inotify
-include_files += [ ST_INOTIFY_EXE ]
 
 executables = [
 	Executable(

@@ -12,7 +12,6 @@ from win32com.shell import shell, shellcon
 log = logging.getLogger("windows.py")
 
 SM_SHUTTINGDOWN = 0x2000
-ST_INOTIFY_EXE = "syncthing-inotify-v0.8.7.exe"
 
 def fix_localized_system_error_messages():
 	"""

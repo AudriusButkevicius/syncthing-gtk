@@ -283,7 +283,6 @@ class App(Gtk.Application, TimerManager):
 			return action
 		add_simple_action('webui', self.cb_menu_webui)
 		add_simple_action('daemon_output', self.cb_menu_daemon_output).set_enabled(False)
-		add_simple_action('inotify_output', self.cb_menu_inotify_output).set_enabled(False)
 		add_simple_action('preferences', self.cb_menu_ui_settings)
 		add_simple_action('about', self.cb_about)
 		add_simple_action('quit', self.cb_exit)
