@@ -19,7 +19,7 @@ try:
 		gi.require_version('Notify', '0.7')
 		from gi.repository import Notify
 		HAS_DESKTOP_NOTIFY = True
-except ImportError:
+except (ValueError, ImportError):
 	pass
 
 if HAS_DESKTOP_NOTIFY:

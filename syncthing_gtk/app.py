@@ -229,9 +229,9 @@ class App(Gtk.Application, TimerManager):
 			if not self.daemon is None:
 				self.daemon.set_refresh_interval(REFRESH_INTERVAL_TRAY)
 		else:
-			if self.wizard is None:
+			if self.wizard is None and not self.is_visible():
 				# Show main window
-				self.cb_statusicon_click()
+				self.show()
 		self.hide_window = False
 	
 	def setup_commandline(self):

@@ -465,6 +465,7 @@ class InfoBox(Gtk.Container):
 	def _prepare_icon(self, icon):
 		if icon.endswith(".svg"):
 			# Icon is svg file
+			return Gtk.Image.new_from_icon_name('info', 16)
 			key = icon if self.dark_color is None else icon + "-dark"
 			if not key in svg_cache:
 				if not self.dark_color is None:
